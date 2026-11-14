@@ -293,6 +293,7 @@ export default function RailHero({ config }: { config?: SiteConfig }) {
 
   const navItems = [
     { label: navLeft, target: 'about-sec' },
+    { label: 'Katalog', target: 'katalog-card' },
     { label: 'Teknik', target: 'teknik' },
     { label: 'Cara Order', target: 'order' },
     { label: 'Workshop', target: 'workshop' },
