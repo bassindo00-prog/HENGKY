@@ -315,6 +315,8 @@
 
 .calc-cta {
   height: 52px;
+  min-height: 52px;
+  flex: none;
   width: 100%;
   border-radius: 28px;
   background: #1f4dff;
@@ -892,6 +894,8 @@
   margin-top: 12px;
   width: 100%;
   height: 48px;
+  min-height: 48px;
+  flex: none;
   border-radius: 999px;
   background: #25d366;
   color: #ffffff;
