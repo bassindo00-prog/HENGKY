@@ -150,23 +150,29 @@ export async function getSiteConfig(): Promise<SiteConfig> {
     return readStore().siteConfig;
   }
 
-  const res = await fetch(
-    `${sb.url}/rest/v1/site_config?id=eq.default&select=config`,
-    {
-      headers: supabaseHeaders(sb.key),
-      cache: 'no-store',
+  try {
+    const res = await fetch(
+      `${sb.url}/rest/v1/site_config?id=eq.default&select=config`,
+      {
+        headers: supabaseHeaders(sb.key),
+        cache: 'no-store',
+      }
+    );
+
+    if (!res.ok) {
+      console.error(`Supabase getSiteConfig failed (${res.status})`);
+      return normalizeConfig(null);
     }
-  );
 
-  if (!res.ok) {
-    throw new Error(`Supabase getSiteConfig failed (${res.status})`);
-  }
-
-  const rows = (await res.json()) as Array<{ config?: Partial<SiteConfig> }>;
-  if (!rows.length || !rows[0].config) {
+    const rows = (await res.json()) as Array<{ config?: Partial<SiteConfig> }>;
+    if (!rows.length || !rows[0].config) {
+      return normalizeConfig(null);
+    }
+    return normalizeConfig(rows[0].config);
+  } catch (err) {
+    console.error('Supabase getSiteConfig error:', err);
     return normalizeConfig(null);
   }
-  return normalizeConfig(rows[0].config);
 }
 
 export async function saveSiteConfig(config: SiteConfig): Promise<SiteConfig> {
@@ -205,20 +211,26 @@ export async function listOrders(): Promise<OrderItem[]> {
     return readStore().orders;
   }
 
-  const res = await fetch(
-    `${sb.url}/rest/v1/orders?select=*&order=created_at.desc`,
-    {
-      headers: supabaseHeaders(sb.key),
-      cache: 'no-store',
+  try {
+    const res = await fetch(
+      `${sb.url}/rest/v1/orders?select=*&order=created_at.desc`,
+      {
+        headers: supabaseHeaders(sb.key),
+        cache: 'no-store',
+      }
+    );
+
+    if (!res.ok) {
+      console.error(`Supabase listOrders failed (${res.status})`);
+      return [];
     }
-  );
 
-  if (!res.ok) {
-    throw new Error(`Supabase listOrders failed (${res.status})`);
+    const rows = (await res.json()) as SupabaseOrderRow[];
+    return rows.map(mapRowToOrder);
+  } catch (err) {
+    console.error('Supabase listOrders error:', err);
+    return [];
   }
-
-  const rows = (await res.json()) as SupabaseOrderRow[];
-  return rows.map(mapRowToOrder);
 }
 
 export async function createOrder(order: OrderItem): Promise<OrderItem> {
