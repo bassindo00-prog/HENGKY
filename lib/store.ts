@@ -20,9 +20,10 @@ const DEFAULT_STORE: StoreData = {
 };
 
 function getSupabaseEnv() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, '');
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const bucket = process.env.SUPABASE_STORAGE_BUCKET || 'samples';
+  const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? '';
+  const url = rawUrl.replace(/\/rest\/v1\/?$/i, '').replace(/\/+$/, '');
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET?.trim() || 'samples';
   if (!url || !key) return null;
   return { url, key, bucket };
 }
