@@ -123,6 +123,14 @@ const FAQS = [
 const ADULT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'] as const;
 const KID_SIZES = ['Anak S', 'Anak M', 'Anak L', 'Anak XL'] as const;
 
+function WhatsAppIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12.04 2C6.52 2 2.04 6.48 2.04 12c0 1.94.55 3.83 1.6 5.45L2 22l4.68-1.59A9.93 9.93 0 0 0 12.04 22c5.52 0 10-4.48 10-10S17.56 2 12.04 2Zm5.83 14.12c-.25.7-1.44 1.34-2 1.42-.52.08-1.18.11-1.91-.12-.44-.14-1-.33-1.72-.64-3.02-1.3-4.99-4.34-5.14-4.54-.15-.2-1.23-1.64-1.23-3.13 0-1.49.78-2.22 1.06-2.52.28-.3.6-.38.8-.38.2 0 .4 0 .57.01.18.01.43-.07.67.51.25.6.85 2.07.92 2.22.08.15.13.33.03.53-.1.2-.15.33-.3.5-.15.18-.32.4-.45.54-.15.15-.31.32-.13.62.18.3.8 1.32 1.72 2.14 1.18 1.05 2.18 1.38 2.48 1.53.3.15.48.13.66-.08.18-.2.76-.88.96-1.18.2-.3.4-.25.68-.15.28.1 1.77.84 2.07.99.3.15.5.23.58.35.08.13.08.73-.17 1.43Z" />
+    </svg>
+  );
+}
+
 export default function SablonSections({ config }: { config?: SiteConfig }) {
   const techniques = config?.techniques?.length ? config.techniques : TECHNIQUES;
   const products = config?.products?.length ? config.products : PRODUCTS;
@@ -160,6 +168,7 @@ export default function SablonSections({ config }: { config?: SiteConfig }) {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [createdId, setCreatedId] = useState<string | null>(null);
+  const [lastOrderWaUrl, setLastOrderWaUrl] = useState('');
 
   const activeTech = techniques[techIdx] ?? techniques[0];
   const selectedItem =
@@ -212,12 +221,16 @@ export default function SablonSections({ config }: { config?: SiteConfig }) {
   const studioHeading = config?.studioHeading || 'Kunjungi studio atau konsultasi desain langsung.';
   const address = config?.address || 'Jl. Kemang Timur No. 42, Jakarta Selatan';
   const hours = config?.hours || 'Senin – Sabtu, 09.00 – 18.00 WIB';
-  const whatsapp = config?.whatsapp || '+62 812-9000-2626';
+  const whatsapp = config?.whatsapp || '+62 853-8647-6716';
   const email = config?.email || 'studio@bangsablon.id';
   const studioCtaText = config?.studioCtaText || 'Chat Workshop Sekarang';
   const footerTagline = config?.footerTagline || 'Custom Screen Printing & Apparel Workshop';
   const footerLocation = config?.footerLocation || 'Jakarta · Indonesia · © 2026';
-  const waDigits = whatsapp.replace(/\D/g, '');
+  const rawDigits = whatsapp.replace(/\D/g, '') || '6285386476716';
+  const waDigits = rawDigits.startsWith('0') ? '62' + rawDigits.slice(1) : rawDigits;
+  const generalWaUrl = `https://wa.me/${waDigits}?text=${encodeURIComponent(
+    `Halo ${brandName}, saya mau konsultasi & pesan sablon custom.`
+  )}`;
 
   const handleFileChange = (file: File | null) => {
     setSampleFile(file);
@@ -257,6 +270,22 @@ export default function SablonSections({ config }: { config?: SiteConfig }) {
       if (!res.ok) {
         setErrorMsg(data.error || 'Gagal mengirim pesanan.');
       } else {
+        const sizeDetails = Object.entries(sizes)
+          .filter(([, v]) => v > 0)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(', ');
+        const waMsg = [
+          `Halo ${brandName}, saya baru saja kirim pesanan:`,
+          `• ID Pesanan: ${data.id}`,
+          `• Nama / Brand: ${customerName.trim()}`,
+          `• Pilihan: ${selectedItem.label}`,
+          `• Total: ${effectiveQty} pcs${sizeDetails ? ` (${sizeDetails})` : ''}`,
+          notes.trim() ? `• Catatan: ${notes.trim()}` : '',
+        ]
+          .filter(Boolean)
+          .join('\n');
+        const waUrl = `https://wa.me/${waDigits}?text=${encodeURIComponent(waMsg)}`;
+        setLastOrderWaUrl(waUrl);
         setCreatedId(data.id);
         setCustomerName('');
         setCustomerWhatsapp('');
@@ -274,6 +303,7 @@ export default function SablonSections({ config }: { config?: SiteConfig }) {
           'Anak XL': 0,
         });
         handleFileChange(null);
+        window.open(waUrl, '_blank', 'noopener,noreferrer');
       }
     } catch {
       setErrorMsg('Terjadi kesalahan jaringan.');
@@ -547,22 +577,19 @@ export default function SablonSections({ config }: { config?: SiteConfig }) {
                 <strong>{hours}</strong>
               </div>
               <div className="studio-row">
-                <span>WhatsApp &amp; Order</span>
-                <strong>{whatsapp}</strong>
-              </div>
-              <div className="studio-row">
                 <span>Email</span>
                 <strong>{email}</strong>
               </div>
             </div>
 
             <a
-              href={`https://wa.me/${waDigits}`}
+              href={generalWaUrl}
               target="_blank"
               rel="noreferrer"
               className="studio-cta"
             >
-              {studioCtaText}
+              <WhatsAppIcon size={18} />
+              <span>{studioCtaText}</span>
             </a>
           </div>
         </div>
@@ -624,12 +651,23 @@ export default function SablonSections({ config }: { config?: SiteConfig }) {
                 <strong>Pesanan Diterima — {createdId}</strong>
                 <p>
                   Sample desain dan detail pesanan Anda sudah masuk ke dasbor{' '}
-                  {brandName}. Tim kami akan segera menghubungi via WhatsApp.
+                  {brandName}. Klik tombol di bawah untuk langsung lanjut ke WhatsApp.
                 </p>
+                {lastOrderWaUrl && (
+                  <a
+                    href={lastOrderWaUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="wa-btn"
+                  >
+                    <WhatsAppIcon size={18} />
+                    <span>Lanjut ke WhatsApp</span>
+                  </a>
+                )}
                 <button
                   type="button"
                   className="calc-cta"
-                  style={{ marginTop: 8 }}
+                  style={{ marginTop: 10 }}
                   onClick={() => setModalOpen(false)}
                 >
                   Selesai
@@ -755,6 +793,15 @@ export default function SablonSections({ config }: { config?: SiteConfig }) {
           </form>
         </div>
       )}
+      <a
+        href={generalWaUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="wa-fab"
+        aria-label="Chat WhatsApp"
+      >
+        <WhatsAppIcon size={26} />
+      </a>
     </div>
   );
 }

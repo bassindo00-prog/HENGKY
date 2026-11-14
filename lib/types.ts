@@ -283,7 +283,7 @@ export const DEFAULT_CONFIG: SiteConfig = {
   studioHeading: 'Kunjungi studio atau konsultasi desain langsung.',
   address: 'Jl. Kemang Timur No. 42, Jakarta Selatan',
   hours: 'Senin – Sabtu, 09.00 – 18.00 WIB',
-  whatsapp: '+62 812-9000-2626',
+  whatsapp: '+62 853-8647-6716',
   email: 'studio@bangsablon.id',
   studioCtaText: 'Chat Workshop Sekarang',
   footerTagline: 'Custom Screen Printing & Apparel Workshop',
