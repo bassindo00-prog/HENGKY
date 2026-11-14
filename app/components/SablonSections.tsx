@@ -303,7 +303,6 @@ export default function SablonSections({ config }: { config?: SiteConfig }) {
           'Anak XL': 0,
         });
         handleFileChange(null);
-        window.location.href = waUrl;
       }
     } catch {
       setErrorMsg('Terjadi kesalahan jaringan.');
