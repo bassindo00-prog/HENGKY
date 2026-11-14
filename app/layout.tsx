@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Offcut',
+  title: 'BANG SABLON — Custom Screen Printing & Apparel Workshop',
+  description:
+    'Studio sablon manual & DTF custom untuk brand streetwear, komunitas, dan event.',
 };
 
 export const viewport: Viewport = {
@@ -16,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="id">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
