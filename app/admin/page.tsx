@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import Link from 'next/link';
 import {
   DEFAULT_CONFIG,
   type OrderItem,
@@ -25,6 +24,7 @@ function isImageUrl(url: string | null) {
 
 export default function AdminDashboardPage() {
   const [tab, setTab] = useState<'orders' | 'cms'>('orders');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cmsSec, setCmsSec] = useState<CmsSection>('bar1');
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [filter, setFilter] = useState<'Semua' | OrderStatus>('Semua');
@@ -125,9 +125,52 @@ export default function AdminDashboardPage() {
           >
             Edit Semua Teks Landing Page
           </button>
-          <Link href="/" className="adm-link">
-            Lihat Landing Page ↗
-          </Link>
+        </div>
+
+        <div className="adm-mobile-nav">
+          <button
+            type="button"
+            className="adm-burger"
+            aria-label="Buka menu admin"
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+          >
+            {mobileMenuOpen ? (
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                <path d="M4 4l12 12M16 4L4 16" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                <path d="M3 5h14M3 10h14M3 15h14" />
+              </svg>
+            )}
+          </button>
+
+          {mobileMenuOpen && (
+            <div className="adm-drawer">
+              <button
+                type="button"
+                className={`adm-drawer-item${tab === 'orders' ? ' on' : ''}`}
+                onClick={() => {
+                  setTab('orders');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <span>Kelola Pemesanan</span>
+                <span className="adm-cnt">{orders.length}</span>
+              </button>
+              <button
+                type="button"
+                className={`adm-drawer-item${tab === 'cms' ? ' on' : ''}`}
+                onClick={() => {
+                  setTab('cms');
+                  setMobileMenuOpen(false);
+                }}
+              >
+                <span>Edit Semua Teks Landing Page</span>
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
