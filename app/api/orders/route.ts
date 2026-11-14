@@ -82,9 +82,11 @@ export async function POST(request: Request) {
     const saved = await createOrder(newOrder);
 
     return NextResponse.json(saved, { status: 201 });
-  } catch {
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : 'Unknown error';
+    console.error('POST /api/orders error:', detail);
     return NextResponse.json(
-      { error: 'Gagal menyimpan pesanan.' },
+      { error: `Gagal menyimpan pesanan (${detail}).` },
       { status: 500 }
     );
   }
